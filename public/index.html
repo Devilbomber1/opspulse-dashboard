@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpsPulse Dashboard</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 32px; background: #0f172a; color: #e2e8f0; }
+      h1 { margin-bottom: 8px; }
+      .card { background: #111827; padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 10px; border-bottom: 1px solid #1f2937; text-align: left; }
+      .status { text-transform: uppercase; font-size: 12px; padding: 4px 8px; border-radius: 999px; }
+      .healthy { background: #064e3b; color: #a7f3d0; }
+      .degraded { background: #7c2d12; color: #fed7aa; }
+    </style>
+  </head>
+  <body>
+    <h1>OpsPulse Monitoring Dashboard</h1>
+    <p>Live snapshot of recent service metrics.</p>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Latency (ms)</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody id="metrics"></tbody>
+      </table>
+    </div>
+
+    <script>
+      async function loadMetrics() {
+        const res = await fetch('/api/metrics');
+        const data = await res.json();
+        const tbody = document.getElementById('metrics');
+        tbody.innerHTML = data.map(row => `
+          <tr>
+            <td>${row.service}</td>
+            <td><span class="status ${row.status}">${row.status}</span></td>
+            <td>${row.latency_ms}</td>
+            <td>${new Date(row.created_at).toLocaleString()}</td>
+          </tr>
+        `).join('');
+      }
+      loadMetrics();
+    </script>
+  </body>
+</html>
